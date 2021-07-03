@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.util.Util
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() {
+class VideoLyticsDemoActivity : AppCompatActivity() {
 
     // Variable Represents ExoPlayer
     private var exoplayer: SimpleExoPlayer? = null
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_video_lytics_demo)
         playerView = findViewById(R.id.spvStyledPlayerView)
     }
 
