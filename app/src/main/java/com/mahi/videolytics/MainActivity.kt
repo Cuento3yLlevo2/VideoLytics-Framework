@@ -1,23 +1,20 @@
 package com.mahi.videolytics
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.ui.StyledPlayerControlView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import java.lang.reflect.Field
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), View.OnClickListener, StyledPlayerControlView.VisibilityListener {
 
     // Variable Represents ExoPlayer
     private var exoplayer: SimpleExoPlayer? = null
@@ -125,6 +122,22 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         exoplayer?.release()
+    }
+
+    override fun onClick(v: View?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onVisibilityChange(visibility: Int) {
+        TODO("Not yet implemented")
+    }
+
+    companion object {
+        // Saved instance state keys.
+        const private val KEY_TRACK_SELECTOR_PARAMETERS = "track_selector_parameters"
+        const private val KEY_WINDOW = "window"
+        const private val KEY_POSITION = "position"
+        const private val KEY_AUTO_PLAY = "auto_play"
     }
 
 }
