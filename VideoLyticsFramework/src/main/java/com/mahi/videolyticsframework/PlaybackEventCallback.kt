@@ -9,5 +9,4 @@ interface PlaybackEventCallback {
     fun onPlaybackPaused(position: Long, eventTimeMs: Long)
     fun onPlaybackStopped(position: Long, eventTimeMs: Long)
     fun onVideoFinished(eventTimeMs: Long)
-    fun observeData()
 }

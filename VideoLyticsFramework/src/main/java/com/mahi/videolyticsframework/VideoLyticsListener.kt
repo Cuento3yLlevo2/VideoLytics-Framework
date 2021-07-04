@@ -15,13 +15,11 @@ import com.google.android.exoplayer2.source.MediaLoadData
  * We can easily override only the methods you are interested in
  * and then process them further to make them meaningful
  */
-class VideoLyticsListener(val playbackAnalytics: PlaybackEventCallback) : AnalyticsListener {
+class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) : AnalyticsListener {
 
     private var firstLoadStarted = false
     private var firstFrameShowed = false
     private var isCurrentlyPlaying = false
-    private var plabackskipped = false
-
 
     override fun onLoadStarted(
         eventTime: EventTime,
@@ -32,9 +30,9 @@ class VideoLyticsListener(val playbackAnalytics: PlaybackEventCallback) : Analyt
         if (!firstLoadStarted){
             if (eventTime.currentPlaybackPositionMs <= 0) {
                 Log.d("VideoLyticsLogs", "******** Video starts to load(first play only) *********")
-                loadEventInfo.uri
-                eventTime.realtimeMs
                 playbackAnalytics.onVideoStartsLoading(loadEventInfo.uri, eventTime.realtimeMs)
+
+                // First Play even wont be listen
                 isCurrentlyPlaying = true
             } else {
                 Log.d("VideoLyticsLogs", "******** Video starts to load after stopped at position ${eventTime.currentPlaybackPositionMs} milliseconds *********")
@@ -67,16 +65,10 @@ class VideoLyticsListener(val playbackAnalytics: PlaybackEventCallback) : Analyt
                 isCurrentlyPlaying = true
             }
         } else {
-            if (!plabackskipped){
-                isCurrentlyPlaying = false
-                // Playback is paused
-                Log.d("VideoLyticsLogs", "***** Playback Paused **********")
-
-                playbackAnalytics.onPlaybackPaused(eventTime.currentPlaybackPositionMs, eventTime.realtimeMs)
-
-            } else {
-                plabackskipped = false
-            }
+            // Playback is paused
+            Log.d("VideoLyticsLogs", "***** Playback Paused **********")
+            playbackAnalytics.onPlaybackPaused(eventTime.currentPlaybackPositionMs, eventTime.realtimeMs)
+            isCurrentlyPlaying = false
         }
     }
 
@@ -91,10 +83,7 @@ class VideoLyticsListener(val playbackAnalytics: PlaybackEventCallback) : Analyt
             SimpleExoPlayer.DISCONTINUITY_REASON_AUTO_TRANSITION -> Log.d("VideoLyticsLogs", "Video stutters due to period transition")
             SimpleExoPlayer.DISCONTINUITY_REASON_SEEK_ADJUSTMENT -> Log.d("VideoLyticsLogs", "Video stutters due to seek adjustment")
             SimpleExoPlayer.DISCONTINUITY_REASON_INTERNAL -> Log.d("VideoLyticsLogs", "Video stutters due to an internal problem")
-            SimpleExoPlayer.DISCONTINUITY_REASON_SEEK -> {
-                Log.d("VideoLyticsLogs", "Video stutters due to a seek or User skips a portion of the video")
-                plabackskipped = true
-            }
+            SimpleExoPlayer.DISCONTINUITY_REASON_SEEK -> Log.d("VideoLyticsLogs", "Video stutters due to a seek or User skips a portion of the video")
         }
     }
 
@@ -102,6 +91,7 @@ class VideoLyticsListener(val playbackAnalytics: PlaybackEventCallback) : Analyt
         super.onPlaybackStateChanged(eventTime, state)
         if (state == Player.STATE_ENDED){
             Log.d("VideoLyticsLogs", "***************** The player has finished playing the video ********************")
+            playbackAnalytics.onVideoFinished(eventTime.realtimeMs)
         }
     }
 

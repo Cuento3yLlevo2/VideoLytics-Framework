@@ -2,10 +2,14 @@ package com.mahi.videolytics
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.widget.NestedScrollView
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -17,27 +21,54 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
-import com.mahi.videolyticsframework.PlaybackAnalytics
+import com.mahi.videolyticsframework.AnalyticsData
+import com.mahi.videolyticsframework.AnalyticsDataListener
+import com.mahi.videolyticsframework.VideoLytics
 import com.mahi.videolyticsframework.VideoLyticsListener
 import java.io.IOException
 
 
-class VideoLyticsDemoActivity : AppCompatActivity() {
+class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
 
     // Variable Represents ExoPlayer
     private var exoplayer: SimpleExoPlayer? = null
 
     private lateinit var playerView: StyledPlayerView
+    private lateinit var tvTotalTimesPaused: TextView
+    private lateinit var tvTotalTimesResumed: TextView
+    private lateinit var tvTimeElapsed: TextView
+    private lateinit var videoFinishedLayoutRoot : NestedScrollView
+    private lateinit var btnVideoFinishedHideBtn : Button
+    private lateinit var tvVideoFinishedTotalTimesPaused : TextView
+    private lateinit var tvVideoFinishedTotalTimesResumed : TextView
+    private lateinit var tvVideoFinishedTimeElapsedList : TextView
     private var playWhenReady = true
     private var startWindow = 0
     private var startPosition: Long = 0
-    private lateinit var playbackAnalytics : PlaybackAnalytics
+    private lateinit var videoLytics : VideoLytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_lytics_demo)
         playerView = findViewById(R.id.spvStyledPlayerView)
-        playbackAnalytics = PlaybackAnalytics()
+        tvTotalTimesPaused = findViewById(R.id.tvTotalTimesPaused)
+        tvTotalTimesResumed = findViewById(R.id.tvTotalTimesResumed)
+        tvTimeElapsed = findViewById(R.id.tvTimeElapsed)
+        tvTotalTimesPaused.text = getString(R.string.pausedTimesNullText)
+        tvTotalTimesResumed.text = getString(R.string.resumedTimesNullText)
+        tvTimeElapsed.text = getString(R.string.timeElapsedNullText)
+        videoFinishedLayoutRoot = findViewById(R.id.videoFinishedLayoutRoot)
+        btnVideoFinishedHideBtn = findViewById(R.id.btnVideoFinishedHideBtn)
+        tvVideoFinishedTotalTimesPaused = findViewById(R.id.tvVideoFinishedTotalTimesPaused)
+        tvVideoFinishedTotalTimesResumed = findViewById(R.id.tvVideoFinishedTotalTimesResumed)
+        tvVideoFinishedTimeElapsedList = findViewById(R.id.tvVideoFinishedTimeElapsedList)
+
+        btnVideoFinishedHideBtn.setOnClickListener {
+            videoFinishedLayoutRoot.visibility = View.GONE
+            tvVideoFinishedTimeElapsedList.text = ""
+        }
+
+        videoLytics = VideoLytics(this)
         initExoplayer()
     }
 
@@ -55,7 +86,7 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
             .createMediaSource(MediaItem.fromUri(videoUri))
 
         // Implementing Framework VideoLyticsListener
-        exoplayer?.let{ it.addAnalyticsListener(VideoLyticsListener(playbackAnalytics))}
+        exoplayer?.addAnalyticsListener(VideoLyticsListener(videoLytics.initCollector()))
 
         // Set the MediaSource to be played.
         exoplayer?.setMediaSource(hlsMediaSource, true)
@@ -152,6 +183,34 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
                 playerView.onPause()
             }
             releasePlayer()
+        }
+    }
+
+    override fun onAnalyticsDataChanged(dataType: Int) {
+        when(dataType){
+            AnalyticsData.TIMES_PAUSED_CHANGED -> {
+                val totalTimesPausedString = "Paused:    ${videoLytics.analyticsData.totalTimesPaused} times"
+                tvTotalTimesPaused.text = totalTimesPausedString
+            }
+            AnalyticsData.TIMES_RESUMED_CHANGED -> {
+                val totalTimesResumedString = "Resumed: ${videoLytics.analyticsData.totalTimesResumed} times"
+                val timeElapsedString = "Time Elapsed: ${videoLytics.analyticsData.timeElapsedUntilResumedAgain?.div(1000.0)} secs"
+                tvTotalTimesResumed.text = totalTimesResumedString
+                tvTimeElapsed.text = timeElapsedString
+            }
+        }
+    }
+
+    override fun onVideoFinished() {
+        videoFinishedLayoutRoot.visibility = View.VISIBLE
+        val totalTimesPausedString = "Number of times Paused: ${videoLytics.analyticsData.totalTimesPaused} times"
+        val totalTimesResumedString = "Number of times Resumed: ${videoLytics.analyticsData.totalTimesResumed} times"
+        tvVideoFinishedTotalTimesPaused.text = totalTimesPausedString
+        tvVideoFinishedTotalTimesResumed.text = totalTimesResumedString
+        videoLytics.analyticsData.resumedTimeElapsedList.forEachIndexed { index, timeElapsedMilisecs ->
+            var content = ""
+            content += "${timeElapsedMilisecs.div(1000.0)} secs Elapsed Until Resumed Nº ${index+1}\n"
+            tvVideoFinishedTimeElapsedList.append(content)
         }
     }
 

@@ -8,12 +8,140 @@
     tools:context=".VideoLyticsDemoActivity"
     android:keepScreenOn="true">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/videoLyticsDataView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <TextView
+            android:id="@+id/tvTotalTimesPaused"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvTotalTimesResumed"
+            tools:text="Paused:    2 times"
+            android:layout_width="80dp"
+            android:layout_height="46dp"
+            android:lines="2"
+            android:textAlignment="center"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/tvTotalTimesResumed"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Resumed: 3 times"
+            android:layout_width="80dp"
+            android:layout_height="46dp"
+            android:lines="2"
+            android:textAlignment="center"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/tvTimeElapsed"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvTotalTimesResumed"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Time Elapsed: 15 secs"
+            android:layout_width="100dp"
+            android:layout_height="46dp"
+            android:lines="2"
+            android:textAlignment="center"
+            android:padding="4dp"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.exoplayer2.ui.StyledPlayerView
+        app:layout_constraintTop_toBottomOf="@id/videoLyticsDataView"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/spvStyledPlayerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:show_buffering="when_playing"
         app:show_shuffle_button="false"
         />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/videoFinishedLayoutRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnVideoFinishedHideBtn"
+                android:text="@string/videoFinishedHideBtn"
+                android:layout_margin="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvVideoFinishedTitle"
+                android:layout_margin="16dp"
+                android:text="@string/tvVideoFinishedTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                />
+
+            <TextView
+                android:id="@+id/tvVideoFinishedTotalTimesPaused"
+                android:layout_margin="16dp"
+                tools:text="Number of times Paused: 2 times"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/tvVideoFinishedTotalTimesResumed"
+                android:layout_margin="16dp"
+                tools:text="Number of times Resumed: 3 times"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvVideoFinishedTimeElapsedTitle"
+                android:layout_margin="16dp"
+                android:text="@string/tvVideoFinishedTimeElapsedTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/tvVideoFinishedTimeElapsedList"
+                tools:text="15 secs Elapsed Until Resumed Nº 1 \n3 secs Elapsed Until Resumed Nº 2"
+                android:layout_width="260dp"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:lines="26"
+                android:maxLines="30"
+                android:ellipsize="end"
+                android:textAlignment="center"
+                />
+
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

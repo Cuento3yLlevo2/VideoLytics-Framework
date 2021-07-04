@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">VideoLytics</string>
+    <string name="pausedTimesNullText">Paused:    --:--</string>
+    <string name="resumedTimesNullText">Resumed: --:--</string>
+    <string name="timeElapsedNullText">Time Elapsed: --:--</string>
+    <string name="tvVideoFinishedTimeElapsedTitle">List of Time Elapsed Records until Resumed:</string>
+    <string name="videoFinishedHideBtn">Hide</string>
+    <string name="tvVideoFinishedTitle">** Video Finished **</string>
 </resources>
