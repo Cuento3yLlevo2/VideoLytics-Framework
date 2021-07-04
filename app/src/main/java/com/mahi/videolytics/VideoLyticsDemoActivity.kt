@@ -17,6 +17,8 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
+import com.mahi.videolyticsframework.PlaybackAnalytics
+import com.mahi.videolyticsframework.VideoLyticsListener
 import java.io.IOException
 
 
@@ -29,11 +31,14 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
     private var playWhenReady = true
     private var startWindow = 0
     private var startPosition: Long = 0
+    private lateinit var playbackAnalytics : PlaybackAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_lytics_demo)
         playerView = findViewById(R.id.spvStyledPlayerView)
+        playbackAnalytics = PlaybackAnalytics()
+        initExoplayer()
     }
 
     private fun initExoplayer() {
@@ -49,14 +54,13 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
         val hlsMediaSource: HlsMediaSource = HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(videoUri))
 
+        // Implementing Framework VideoLyticsListener
+        exoplayer?.let{ it.addAnalyticsListener(VideoLyticsListener(playbackAnalytics))}
+
         // Set the MediaSource to be played.
         exoplayer?.setMediaSource(hlsMediaSource, true)
         // Prepare the player.
         exoplayer?.prepare()
-        // Start the playback.
-        exoplayer?.playWhenReady = playWhenReady
-
-        exoplayer?.seekTo(startWindow, startPosition)
 
         // When a failure occurs, this method will be called
         exoplayer?.playerError?.let { onPlayerError(it) }
@@ -64,13 +68,18 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        initExoplayer()
+        // Start the playback.
+        exoplayer?.playWhenReady = playWhenReady
     }
 
     override fun onResume() {
         super.onResume()
         if(Util.SDK_INT < 24 || exoplayer == null){
             initExoplayer()
+            // Seeks to the previous position
+            exoplayer?.seekTo(startWindow, startPosition)
+            // Start the playback.
+            exoplayer?.playWhenReady = playWhenReady
             hideSystemUI()
         }
     }
@@ -83,9 +92,28 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
         }
     }
 
+    // With API 24 multi window was introduced to Android.
+    // This means that two apps can be visible at the same time.
+    // This has changed things and that's why the behaviour is different for API < 24.
+    // After 24 you want to release the player in onStop,
+    // because onPause may be called when your app is still visible in split screen.
     override fun onPause() {
-        releasePlayer()
         super.onPause()
+        if(Util.SDK_INT < 24){
+            if (exoplayer != null) {
+                pausePlayer()
+            }
+            releasePlayer()
+        } else {
+            pausePlayer()
+        }
+    }
+
+    private fun pausePlayer() {
+        playWhenReady = exoplayer!!.playWhenReady
+        startPosition = exoplayer!!.currentPosition
+        startWindow = exoplayer!!.currentWindowIndex
+        exoplayer?.pause()
     }
 
     private fun releasePlayer() {
@@ -118,8 +146,13 @@ class VideoLyticsDemoActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        releasePlayer()
         super.onStop()
+        if (Util.SDK_INT > 23) {
+            if (exoplayer != null) {
+                playerView.onPause()
+            }
+            releasePlayer()
+        }
     }
 
 }
