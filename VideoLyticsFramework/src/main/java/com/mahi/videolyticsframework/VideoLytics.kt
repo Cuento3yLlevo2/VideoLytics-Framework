@@ -6,6 +6,16 @@ import com.mahi.videolyticsframework.collector.PlaybackEventCallback
 import com.mahi.videolyticsframework.model.AnalyticsData
 import com.mahi.videolyticsframework.model.AnalyticsDataListener
 
+/**
+ * VideoLytics Framework point of access for Android App.
+ *
+ * this class needs to be implemented on the Android App Activity or Fragment in charge on reproducing
+ * video with an ExoPlayer media player.
+ *
+ * @param context the current context from Activity.
+ * @param analyticsDataListener is an AnalyticsDataListener that should extends.
+ * @constructor Creates a PlaybackAnalyticsCollector that will take care of data collection.
+ */
 class VideoLytics(var context: Context, analyticsDataListener : AnalyticsDataListener?) {
 
     private var playbackAnalyticsCollector : PlaybackAnalyticsCollector

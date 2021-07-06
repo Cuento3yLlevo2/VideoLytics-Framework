@@ -1,10 +1,5 @@
 package com.mahi.videolyticsframework.collector
 
-import android.R.attr.data
-import android.database.Cursor
-import android.media.MediaMetadata.METADATA_KEY_DURATION
-import android.media.MediaMetadataRetriever
-import android.provider.MediaStore
 import android.util.Log
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -15,10 +10,14 @@ import com.google.android.exoplayer2.source.MediaLoadData
 
 
 /**
- * Extends ExoPlayer's AnalyticsListener
- * Raw playback events from the player are reported to AnalyticsListener implementations.
- * We can easily override only the methods you are interested in
- * and then process them further to make them meaningful
+ * Listen for Raw playback events from the player that
+ * Extends AnalyticsListener Extends ExoPlayer's AnalyticsListener.
+ *
+ * Listen for Raw playback events from the player and sends result to PlaybackAnalyticsCollector using
+ * PlaybackEventCallback Interface.
+ *
+ * @param playbackAnalytics interface used to send Raw playback events to PlaybackAnalyticsCollector.
+ *
  */
 class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) : AnalyticsListener {
 

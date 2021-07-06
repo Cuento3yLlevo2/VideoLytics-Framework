@@ -1,8 +1,14 @@
 package com.mahi.videolyticsframework.model
 
-import android.net.Uri
 import com.google.gson.annotations.Expose
 
+/**
+ * Object that contains the data collected from video playback.
+ *
+ * Values that are not @Expose wont be send to Api with the http Post Request
+ *
+ * @param analyticsDataListener
+ */
 class AnalyticsData(var analyticsDataListener: AnalyticsDataListener?) {
     var dataCreatedTimeMs: Long? = null
     @Expose

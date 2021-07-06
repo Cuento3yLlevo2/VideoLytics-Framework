@@ -13,8 +13,19 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 
-class Repository {
+/**
+ * Uses http Post request using Volley HTTP Library https://github.com/google/volley.
+ *
+ */
+class VolleyService {
 
+    /**
+     * Sends http Post request and parses AnalyticsData Object to
+     * Json using https://github.com/google/gson to sent into requestBody.
+     *
+     * @param context current Application context
+     * @param analyticsData Object to parse to Json Request Body
+     */
     fun pushAnalyticsData(context: Context, analyticsData: AnalyticsData) {
 
         val analyticsDataJSON = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(analyticsData)
@@ -26,7 +37,7 @@ class Repository {
             val jsonBody = JSONObject(analyticsDataJSON)
             val requestBody = jsonBody.toString()
             val stringRequest: StringRequest = object : StringRequest(
-                Request.Method.POST, url,
+                Method.POST, url,
                 Response.Listener { response -> Log.i("VOLLEY Httpcode -->>", response!!) },
                 Response.ErrorListener { error -> Log.e("VOLLEY error", error.toString()) }) {
                 override fun getBodyContentType(): String {

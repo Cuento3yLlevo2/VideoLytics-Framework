@@ -21,13 +21,12 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
-import com.mahi.videolyticsframework.model.AnalyticsData
-import com.mahi.videolyticsframework.model.AnalyticsDataListener
 import com.mahi.videolyticsframework.VideoLytics
 import com.mahi.videolyticsframework.collector.VideoLyticsListener
+import com.mahi.videolyticsframework.model.AnalyticsDataListener
 import java.io.IOException
 
-
+// Add an AnalyticsDataListener Interface to the activity or fragment that contains the ExoPlayer Instance
 class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
 
     // Variable Represents ExoPlayer
@@ -68,7 +67,11 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
             tvVideoFinishedTimeElapsedList.text = ""
         }
 
+        // Create a VideoLytics class instance which will pass
+        // as parameters the current context and the AnalyticsDataListener Interface.
         videoLytics = VideoLytics(this,this)
+
+        // Initialize Exoplayer after that
         initExoplayer()
     }
 
@@ -85,7 +88,15 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
         val hlsMediaSource: HlsMediaSource = HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(videoUri))
 
-        // Implementing Framework VideoLyticsListener
+        /*
+            The VideoLytics Framework collects data using the VideoLyticsListener class
+            that extends from ExoPlayer's AnalyticsListener Interface.
+
+            This interface listens for the Raw playback events from a given player.
+            After creating the ExoPlayer instance you should add VideoLyticsListener class
+            as an AnalyticsListener with the method videoLytics.initCollector() that returns
+            a VideoLyticsListener instance.
+         */
         exoplayer?.addAnalyticsListener(VideoLyticsListener(videoLytics.initCollector()))
 
         // Set the MediaSource to be played.
@@ -186,6 +197,18 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
         }
     }
 
+    /*
+     * All data collected is available from your application's
+     * Activity or Fragment by retrieving data from the videoLytics.analyticsData class.
+     * Use the AnalyticsDataListener interface implemented methods
+     * to listen for updates on videoLytics.analyticsData class to retrieve changes in real time.
+     */
+
+    /**
+     * onAnalyticsDataChanged: listens for:
+     * - Number of times Paused changes VideoLytics.TIMES_PAUSED_CHANGED.
+     * - Number of times Resumed changes VideoLytics.TIMES_RESUMED_CHANGED.
+     */
     override fun onAnalyticsDataChanged(dataType: Int) {
         when(dataType){
             VideoLytics.TIMES_PAUSED_CHANGED -> {
@@ -201,6 +224,9 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
         }
     }
 
+    /**
+     * onVideoFinished(): listens when the video playback finished.
+     */
     override fun onVideoFinished() {
         videoFinishedLayoutRoot.visibility = View.VISIBLE
         val totalTimesPausedString = "Number of times Paused: ${videoLytics.analyticsData.totalTimesPaused} times"

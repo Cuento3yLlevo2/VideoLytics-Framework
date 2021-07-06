@@ -4,10 +4,18 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.mahi.videolyticsframework.VideoLytics
-import com.mahi.videolyticsframework.api.Repository
+import com.mahi.videolyticsframework.api.VolleyService
 import com.mahi.videolyticsframework.model.AnalyticsData
 
-
+/**
+ * Collects and transforms all data from VideoLyticsListener.
+ *
+ * extends PlaybackEventCallback Interface to get callbacks from needed events.
+ *
+ * @param context current Android app context.
+ * @param analyticsData Object that storage collected data.
+ *
+ */
 class PlaybackAnalyticsCollector(var context: Context, var analyticsData: AnalyticsData) : PlaybackEventCallback {
 
     private var pausedPressedCounter = 0
@@ -15,7 +23,7 @@ class PlaybackAnalyticsCollector(var context: Context, var analyticsData: Analyt
     private var resumedPressedCounter = 0
     private var resumedPressedEventTimeMs : Long = 0
     private var resumedTimeElapsedList = ArrayList<Long>()
-    var repository: Repository = Repository()
+    var volleyService: VolleyService = VolleyService()
 
 
     override fun onVideoStartsLoading(uri: Uri, eventTimeMs: Long) {
@@ -36,7 +44,8 @@ class PlaybackAnalyticsCollector(var context: Context, var analyticsData: Analyt
         analyticsData.timeElapsedUntilResumedAgain = null
         analyticsData.resumedTimeElapsedList.clear()
 
-        repository.pushAnalyticsData(context, analyticsData)
+        // Post http request
+        volleyService.pushAnalyticsData(context, analyticsData)
 
     }
 
@@ -47,7 +56,8 @@ class PlaybackAnalyticsCollector(var context: Context, var analyticsData: Analyt
         analyticsData.dataLastUpdateType = VideoLytics.RENDERED_FRAME
         analyticsData.videoPosition = position
 
-        repository.pushAnalyticsData(context, analyticsData)
+        // Post http request
+        volleyService.pushAnalyticsData(context, analyticsData)
     }
 
     override fun onPlaybackResumed(position: Long, eventTimeMs: Long) {
@@ -92,7 +102,8 @@ class PlaybackAnalyticsCollector(var context: Context, var analyticsData: Analyt
         analyticsData.dataLastUpdateType = VideoLytics.VIDEO_STOPPED
         analyticsData.videoPosition = position
 
-        repository.pushAnalyticsData(context, analyticsData)
+        // Post http request
+        volleyService.pushAnalyticsData(context, analyticsData)
 
 
     }
@@ -108,7 +119,8 @@ class PlaybackAnalyticsCollector(var context: Context, var analyticsData: Analyt
         // Calling AnalyticsDataListener's onVideoFinished() method
         analyticsData.analyticsDataListener?.onVideoFinished()
 
-        repository.pushAnalyticsData(context, analyticsData)
+        // Post http request
+        volleyService.pushAnalyticsData(context, analyticsData)
     }
 
 }
