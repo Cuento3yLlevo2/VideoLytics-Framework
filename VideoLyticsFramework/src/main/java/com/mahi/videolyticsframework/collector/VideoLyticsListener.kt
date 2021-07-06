@@ -1,5 +1,10 @@
-package com.mahi.videolyticsframework
+package com.mahi.videolyticsframework.collector
 
+import android.R.attr.data
+import android.database.Cursor
+import android.media.MediaMetadata.METADATA_KEY_DURATION
+import android.media.MediaMetadataRetriever
+import android.provider.MediaStore
 import android.util.Log
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -35,7 +40,7 @@ class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) 
                 // First Play even wont be listen
                 isCurrentlyPlaying = true
             } else {
-                Log.d("VideoLyticsLogs", "******** Video starts to load after stopped at position ${eventTime.currentPlaybackPositionMs} milliseconds *********")
+                Log.d("VideoLyticsLogs", "******** Video starts to load after stopped at position ${eventTime.eventPlaybackPositionMs} milliseconds *********")
             }
             firstLoadStarted = true
         }
@@ -46,8 +51,8 @@ class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) 
 
         if (!firstFrameShowed){
             if (eventTime.currentPlaybackPositionMs >= 0){
-                Log.d("VideoLyticsLogs", "******** Video shows up its first frame ********* ${eventTime.currentPlaybackPositionMs}")
-                playbackAnalytics.onVideoRenderedFirstFrame(eventTime.realtimeMs)
+                Log.d("VideoLyticsLogs", "******** Video shows up its first frame ********* ${eventTime.eventPlaybackPositionMs}")
+                playbackAnalytics.onVideoRenderedFirstFrame(eventTime.eventPlaybackPositionMs, eventTime.realtimeMs)
             }
             firstFrameShowed = true
         }
@@ -60,14 +65,14 @@ class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) 
                 // Playback is playing
                 Log.d("VideoLyticsLogs", "******** Playback Resumed *********")
 
-                playbackAnalytics.onPlaybackResumed(eventTime.currentPlaybackPositionMs, eventTime.realtimeMs)
+                playbackAnalytics.onPlaybackResumed(eventTime.eventPlaybackPositionMs, eventTime.realtimeMs)
 
                 isCurrentlyPlaying = true
             }
         } else {
             // Playback is paused
             Log.d("VideoLyticsLogs", "***** Playback Paused **********")
-            playbackAnalytics.onPlaybackPaused(eventTime.currentPlaybackPositionMs, eventTime.realtimeMs)
+            playbackAnalytics.onPlaybackPaused(eventTime.eventPlaybackPositionMs, eventTime.realtimeMs)
             isCurrentlyPlaying = false
         }
     }
@@ -91,7 +96,7 @@ class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) 
         super.onPlaybackStateChanged(eventTime, state)
         if (state == Player.STATE_ENDED){
             Log.d("VideoLyticsLogs", "***************** The player has finished playing the video ********************")
-            playbackAnalytics.onVideoFinished(eventTime.realtimeMs)
+            playbackAnalytics.onVideoFinished(eventTime.eventPlaybackPositionMs, eventTime.realtimeMs)
         }
     }
 
@@ -100,7 +105,7 @@ class VideoLyticsListener(private val playbackAnalytics: PlaybackEventCallback) 
         // Playback is paused
         Log.d("VideoLyticsLogs", "***** Playback Stopped due to PlayerReleased **********")
 
-        playbackAnalytics.onPlaybackStopped(eventTime.currentPlaybackPositionMs, eventTime.realtimeMs)
+        playbackAnalytics.onPlaybackStopped(eventTime.eventPlaybackPositionMs, eventTime.realtimeMs)
     }
 
 

@@ -21,10 +21,10 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
-import com.mahi.videolyticsframework.AnalyticsData
-import com.mahi.videolyticsframework.AnalyticsDataListener
+import com.mahi.videolyticsframework.model.AnalyticsData
+import com.mahi.videolyticsframework.model.AnalyticsDataListener
 import com.mahi.videolyticsframework.VideoLytics
-import com.mahi.videolyticsframework.VideoLyticsListener
+import com.mahi.videolyticsframework.collector.VideoLyticsListener
 import java.io.IOException
 
 
@@ -68,7 +68,7 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
             tvVideoFinishedTimeElapsedList.text = ""
         }
 
-        videoLytics = VideoLytics(this)
+        videoLytics = VideoLytics(this,this)
         initExoplayer()
     }
 
@@ -188,11 +188,11 @@ class VideoLyticsDemoActivity : AppCompatActivity(), AnalyticsDataListener {
 
     override fun onAnalyticsDataChanged(dataType: Int) {
         when(dataType){
-            AnalyticsData.TIMES_PAUSED_CHANGED -> {
+            VideoLytics.TIMES_PAUSED_CHANGED -> {
                 val totalTimesPausedString = "Paused:    ${videoLytics.analyticsData.totalTimesPaused} times"
                 tvTotalTimesPaused.text = totalTimesPausedString
             }
-            AnalyticsData.TIMES_RESUMED_CHANGED -> {
+            VideoLytics.TIMES_RESUMED_CHANGED -> {
                 val totalTimesResumedString = "Resumed: ${videoLytics.analyticsData.totalTimesResumed} times"
                 val timeElapsedString = "Time Elapsed: ${videoLytics.analyticsData.timeElapsedUntilResumedAgain?.div(1000.0)} secs"
                 tvTotalTimesResumed.text = totalTimesResumedString
